@@ -1,0 +1,126 @@
+<html>
+<head>
+    <title>URL Shortener Service - by Ayush</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+      body { padding-top: 50px; }
+      #snackbar {
+        visibility: hidden;
+        color: #fff;
+        background-color: #333;
+        min-width: 250px;
+        margin-left: -125px;
+        border-radius: 2px;
+        padding: 16px;
+        text-align: center;
+        left: 50%;
+        bottom: 30px;
+        z-index: 1;
+        position: fixed;
+      }
+
+      /* This will be activated when the snackbar's class is 'show' which will be added through JS */
+      #snackbar.show {
+        visibility: visible;
+        -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        animation: fadein 0.5s, fadeout 0.5s 2.5s;
+      }
+
+      /* Animations for fading in and out */
+      @-webkit-keyframes fadein {
+        from {bottom: 0; opacity: 0;}
+        to {bottom: 30px; opacity: 1;}
+      }
+
+      @keyframes fadein {
+        from {bottom: 0; opacity: 0;}
+        to {bottom: 30px; opacity: 1;}
+      }
+
+      @-webkit-keyframes fadeout {
+        from {bottom: 30px; opacity: 1;}
+        to {bottom: 0; opacity: 0;}
+      }
+
+      @keyframes fadeout {
+        from {bottom: 30px; opacity: 1;}
+        to {bottom: 0; opacity: 0;}
+      }
+    </style>
+</head>
+
+<body>
+<div class="container">
+  <div class="jumbotron">
+    <h1>URL Shortener Service by Ayush S Bhatt !</h1>
+  </div>
+
+    <form id="formElem" class="form-inline-block">
+
+      <div class="input-group mb-3">
+        <input type="text" name="longUrl" class="form-control" id="validationCustom03" required placeholder="Enter URL to be shortened">
+        <div class="invalid-feedback">
+          Please provide a valid URL.
+        </div>
+        <button class="btn btn-secondary" type="submit" id="button-addon1">Shorten URL</button>
+      </div>
+    </form>
+    <div id="result-div" class="input-group mb-3" style="display: none;">
+      <div class="input-group mb-3">
+        <input type="text" name="shortUrl" class="form-control" id="shortUrl">
+        
+        <button class="btn btn-outline-secondary" onclick="Copy()" id="copy">Copy</button>
+      </div>
+    </div>
+  </div>
+
+<span id="snackbar">Successfully Copied</span>
+</body>
+<script charset='UTF-8'>
+
+    formElem.onsubmit = async (e) => {
+      e.preventDefault();
+      var form = document.querySelector("#formElem");
+
+        data = {
+          longUrl : form.querySelector('input[name="longUrl"]').value
+        }
+
+        let response = await fetch(`/api/url/shorten`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+        })
+
+        let jsonResponse = await response.json();
+        document.querySelector("#shortUrl").value = jsonResponse.shortUrl;
+
+        var x = document.getElementById("result-div");
+        if (x.style.display === "none") {
+          x.style.display = "block";
+        } else {
+          x.style.display = "none";
+        }
+    };
+
+    function showSnackBar() {
+      var sb = document.getElementById("snackbar");
+
+      //this is where the class name will be added & removed to activate the css
+      sb.className = "show";
+
+      setTimeout(()=>{ sb.className = sb.className.replace("show", ""); }, 3000);
+    }
+
+    function Copy() {
+      var Url = document.getElementById("shortUrl");
+      navigator.clipboard.writeText(Url.value).then(function() {
+          showSnackBar()
+      }, function() {
+          console.log('Copy error')
+      });
+    }
+</script>
+</html>
